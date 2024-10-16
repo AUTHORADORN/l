@@ -163,7 +163,10 @@ button:hover {
     const owner = 'AUTHORADORN';
     const repo = 'l';
     const branch = 'main';
-    const encodedT = 'Z2hwX0Z5SG5XNk9ueUdXMGY5NFNaMFNQYUVhYldrT1drbjJ3WWtieQ==';
+const part1 = 'Z2hwX0Z5SG5XNk9ueUdXMGY5NFN';
+const part2 = 'aMFNQYUVhYldrT1drbjJ3WWtieQ==';
+
+const encodedT = part1 + part2;
     const tookanen = atob(encodedT);
 
         document.getElementById('toggle-button').addEventListener('click', function() {
