@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUTHOR ADMIN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+  
+    <style>
+
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        h1, h2 {
+            color: #f2f2f2;
+            text-align: center;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        form {
+            background-color: #1e1e1e;
+            padding: 20px;
+            max-width: 100%;
+            margin: 20px auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        label {
+            color: #e0e0e0;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        textarea,
+        input[type="file"] {
+            background-color: #333;
+            color: #f2f2f2;
+            border: 1px solid #444;
+            padding: 10px;
+            width: 95%;
+            margin-bottom: 15px;
+            margin-top: 5px;
+            border-radius: 5px;
+        }
+
+        input[type="text"]::placeholder,
+        textarea::placeholder {
+            color: #888;
+        }
+
+        textarea {
+            height: 100px;
+            resize: none;
+        }
+
+.button-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+button {
+    background-color: white;
+    color: black;
+    padding: 10px 20px;
+    border: none;
+            border-radius: 11px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    opacity: 0.5;
+    display: inline-block;
+}
+
+button:hover {
+    opacity: 1;
+}
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+        }
+
+        li {
+            background-color: #2a2a2a;
+            padding: 10px;
+            margin: 10px auto;
+            max-width: 600px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button.delete {
+            background-color: #d32f2f;
+            margin-left: 10px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        button.delete:hover {
+            background-color: #b71c1c;
+        }
+
+        #toggle-button {
+            background-color: transparent;
+            color: white;
+            padding: 10px 20px;
+            font-size: 55px;
+            border: none;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            opacity: 0.5;
+        }
+
+        #toggle-button:hover {
+                        opacity: 0.8;
+        }
+
+    </style>
+</head>
+<body>
+<h1>ADMIN</h1>
+<button id="toggle-button">+</button>
+<form id="jewelry-form">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required><br><br>
+
+    <label for="description">Description:</label><br>
+    <textarea id="description" name="description" required></textarea><br><br>
+
+    <label for="price">Price:</label>
+    <input type="text" id="price" name="price" required><br><br>
+
+    <label for="images">Images:</label>
+    <input type="file" id="images" name="images" multiple required><br>
+
+    <div class="button-container">
+        <button type="submit">CREATE</button>
+    </div>
+</form>
+
+    <h2>Products List</h2>
+    <ul id="file-list"></ul>
+
+    <script>
+        const apiUrl = 'https://api.github.com';
+        const owner = 'YOUR_GITHUB_USERNAME';
+        const repo = 'YOUR_GITHUB_REPO';
+        const branch = 'main';
+        const token = 'YOUR_GITHUB_ACCESS_TOKEN';
+
+        document.getElementById('toggle-button').addEventListener('click', function() {
+            const form = document.getElementById('jewelry-form');
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+                this.textContent = '-';
+            } else {
+                form.style.display = 'none';
+                this.textContent = '+';
+            }
+        });
+
+        async function createJewelryFile(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const price = document.getElementById('price').value;
+            const images = document.getElementById('images').files;
+
+            const timestamp = new Date().getTime();
+            const filename = `${timestamp}+${title}.json`;
+
+            const imageFilenames = await uploadImages(images);
+
+            const fileContent = {
+                "jewelry-title": title,
+                "jewelry-description": description,
+                "jewelry-images": imageFilenames,
+                "jewelry-price": price
+            };
+
+            console.log("Jewelry file content:", fileContent);
+
+            const content = btoa(JSON.stringify(fileContent));
+
+            const url = `${apiUrl}/repos/${owner}/${repo}/contents/${filename}`;
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                body: JSON.stringify({
+                    message: `Create file ${filename}`,
+                    content: content,
+                    branch: branch
+                })
+            });
+
+            if (response.ok) {
+                alert('Jewelry file created successfully!');
+                loadFiles();
+            } else {
+                alert('Error creating file');
+            }
+        }
+
+        async function uploadImages(files) {
+            const uploadedImages = [];
+            for (const file of files) {
+                const filename = file.name;
+                const reader = new FileReader();
+
+                const fileContent = await new Promise((resolve) => {
+                    reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                    reader.readAsDataURL(file);
+                });
+
+                const url = `${apiUrl}/repos/${owner}/${repo}/contents/images/${filename}`;
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify({
+                        message: `Upload image ${filename}`,
+                        content: fileContent,
+                        branch: branch
+                    })
+                });
+
+                if (response.ok) {
+                    uploadedImages.push(filename);
+                } else {
+                    alert('Error uploading image: ' + filename);
+                }
+            }
+            return uploadedImages;
+        }
+
+        async function loadFiles() {
+            const url = `${apiUrl}/repos/${owner}/${repo}/contents`;
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+
+            if (response.ok) {
+                const files = await response.json();
+                const fileList = document.getElementById('file-list');
+                fileList.innerHTML = '';
+
+                files.forEach(file => {
+                    if (file.name.endsWith('.json')) {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = file.name;
+
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Delete';
+                        deleteButton.onclick = () => deleteJewelryFile(file.name, file.sha);
+
+                        listItem.appendChild(deleteButton);
+                        fileList.appendChild(listItem);
+                    }
+                });
+            } else {
+                alert('Error loading files');
+            }
+        }
+
+        async function deleteJewelryFile(filename, sha) {
+            const url = `${apiUrl}/repos/${owner}/${repo}/contents/${filename}`;
+
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                body: JSON.stringify({
+                    message: `Delete file ${filename}`,
+                    sha: sha,
+                    branch: branch
+                })
+            });
+
+            if (response.ok) {
+                alert('Jewelry file deleted successfully!');
+                loadFiles();
+            } else {
+                alert('Error deleting file');
+            }
+        }
+
+        document.getElementById('jewelry-form').addEventListener('submit', createJewelryFile);
+
+        window.onload = loadFiles;
+    </script>
+</body>
+</html>
