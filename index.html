@@ -83,6 +83,7 @@ button {
     font-family: 'Montserrat', sans-serif;
     opacity: 0.5;
     display: inline-block;
+            margin: 20px;
 }
 
 button:hover {
@@ -274,7 +275,7 @@ async function createJewelryFile(event) {
     document.getElementById('loader').style.display = 'none';
 
     if (response.ok) {
-        alert('Jewelry file created successfully!');
+        alert('Jewellery listing created successfully!');
         loadFiles();
     } else {
         alert('Error creating file');
@@ -346,6 +347,12 @@ async function loadFiles() {
 
 async function deleteJewelryFile(filename, sha) {
 
+    const confirmed = confirm(`Are you sure you want to delete the file "${filename}"? This action cannot be undone.`);
+    
+    if (!confirmed) {
+        return;
+    }
+
     const fileUrl = `${apiUrl}/repos/${owner}/${repo}/contents/${filename}`;
     const fileResponse = await fetch(fileUrl, {
         headers: {
@@ -404,6 +411,7 @@ async function deleteJewelryFile(filename, sha) {
     }
 }
 
+
 document.getElementById('delete-unused-images-button').addEventListener('click', deleteUnusedImages);
 
 async function deleteUnusedImages() {
@@ -446,7 +454,7 @@ async function fetchJsonFiles() {
 
     if (response.ok) {
         const files = await response.json();
-        return files.filter(file => file.name.endsWith('.json')); // Filter for .json files
+        return files.filter(file => file.name.endsWith('.json'));
     } else {
         alert('Error loading files');
         return [];
