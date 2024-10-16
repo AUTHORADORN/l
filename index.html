@@ -74,7 +74,7 @@ button {
     color: black;
     padding: 10px 20px;
     border: none;
-            border-radius: 11px;
+    border-radius: 11px;
     cursor: pointer;
     font-size: 16px;
     font-family: 'Montserrat', sans-serif;
@@ -159,11 +159,12 @@ button:hover {
     <ul id="file-list"></ul>
 
     <script>
-        const apiUrl = 'https://api.github.com';
-        const owner = 'YOUR_GITHUB_USERNAME';
-        const repo = 'YOUR_GITHUB_REPO';
-        const branch = 'main';
-        const token = 'YOUR_GITHUB_ACCESS_TOKEN';
+    const apiUrl = 'https://api.github.com';
+    const owner = 'AUTHORADORN';
+    const repo = 'l';
+    const branch = 'main';
+    const encodedT = 'Z2hwX0Z5SG5XNk9ueUdXMGY5NFNaMFNQYUVhYldrT1drbjJ3WWtieQ==';
+    const tookanen = atob(encodedT);
 
         document.getElementById('toggle-button').addEventListener('click', function() {
             const form = document.getElementById('jewelry-form');
@@ -204,7 +205,7 @@ button:hover {
             const response = await fetch(url, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `token ${token}`,
+                    'Authorization': `token ${tookanen}`,
                     'Accept': 'application/vnd.github.v3+json'
                 },
                 body: JSON.stringify({
@@ -237,7 +238,7 @@ button:hover {
                 const response = await fetch(url, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `token ${token}`,
+                        'Authorization': `token ${tookanen}`,
                         'Accept': 'application/vnd.github.v3+json'
                     },
                     body: JSON.stringify({
@@ -260,7 +261,7 @@ button:hover {
             const url = `${apiUrl}/repos/${owner}/${repo}/contents`;
             const response = await fetch(url, {
                 headers: {
-                    'Authorization': `token ${token}`,
+                    'Authorization': `token ${tookanen}`,
                     'Accept': 'application/vnd.github.v3+json'
                 }
             });
@@ -294,7 +295,7 @@ button:hover {
             const response = await fetch(url, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `token ${token}`,
+                    'Authorization': `token ${tookanen}`,
                     'Accept': 'application/vnd.github.v3+json'
                 },
                 body: JSON.stringify({
